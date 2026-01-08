@@ -39,6 +39,7 @@ void pwr_init(void)
     pwr_init_t pwr_init = {
         .supply = PWR_DIRECT_SMPS,
         .vos = PWR_VOS_HIGH,
+        .xspim1_enable = HAL_ENABLE,
     };
 
     hal_pwr_init(&pwr_init);

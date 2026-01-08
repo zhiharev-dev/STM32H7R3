@@ -67,6 +67,8 @@ typedef struct pwr_init {
     uint32_t supply;                            /*!< Конфигурация источника питания @ref pwr_supply_t */
 
     uint32_t vos;                               /*!< Масштабирование напряжения @ref pwr_vos_t */
+
+    uint32_t xspim1_enable;                     /*!< Включить XSPIM1 @ref hal_status_t */
 } pwr_init_t;
 
 /* Exported variables ------------------------------------------------------ */

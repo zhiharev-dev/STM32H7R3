@@ -35,6 +35,8 @@ static void hal_pwr_setup_supply(uint32_t supply);
 
 static void hal_pwr_setup_vos(uint32_t vos);
 
+static void hal_pwr_setup_xspim1(uint32_t state);
+
 /* Private user code ------------------------------------------------------- */
 
 /**
@@ -49,6 +51,7 @@ void hal_pwr_init(pwr_init_t * pwr_init)
     hal_pwr_disable_bkp_protect();
     hal_pwr_setup_supply(pwr_init->supply);
     hal_pwr_setup_vos(pwr_init->vos);
+    hal_pwr_setup_xspim1(pwr_init->xspim1_enable);
 }
 /* ------------------------------------------------------------------------- */
 
@@ -86,5 +89,18 @@ static void hal_pwr_setup_vos(uint32_t vos)
                vos << PWR_CSR4_VOS_Pos);
 
     while (!READ_BIT(PWR->CSR4, PWR_CSR4_VOSRDY_Msk)) {}
+}
+/* ------------------------------------------------------------------------- */
+
+/**
+ * @brief Настроить состояние XSPIM1
+ *
+ * @param state Состояние @ref hal_state_t
+ */
+static void hal_pwr_setup_xspim1(uint32_t state)
+{
+    MODIFY_REG(PWR->CSR2,
+               PWR_CSR2_EN_XSPIM1_Msk,
+               state << PWR_CSR2_EN_XSPIM1_Pos);
 }
 /* ------------------------------------------------------------------------- */

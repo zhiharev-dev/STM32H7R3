@@ -125,6 +125,16 @@ typedef enum rcc_system_clock_source {
 
 
 /**
+ * @brief Определение перечисления источника тактирования XSPI1
+ */
+typedef enum rcc_xspi1_clock_source {
+    RCC_XSPI1_HCLK5_CLOCK,
+    RCC_XSPI1_PLL2S_CLOCK,
+    RCC_XSPI1_PLL2T_CLOCK,
+} rcc_xspi1_clock_source_t;
+
+
+/**
  * @brief Определение структуры данных PLL
  */
 typedef struct rcc_pll {
@@ -189,6 +199,10 @@ typedef struct rcc_init {
     uint32_t apb5_div;                          /*!< Делитель APB5 @ref rcc_apb_div_t */
 
     uint32_t system_clksource;                  /*!< Системный источник тактирования @ref rcc_system_clock_source_t */
+
+    /* Peripherals Clock Select */
+
+    uint32_t xspi1_clksource;                   /*!< Источник тактирования XSPI1 @ref rcc_xspi1_clock_source_t */
 } rcc_init_t;
 
 /* Exported variables ------------------------------------------------------ */

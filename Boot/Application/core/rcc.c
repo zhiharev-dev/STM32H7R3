@@ -44,12 +44,19 @@ void rcc_init(void)
 
         .pll_clksource = RCC_PLL_HSE_CLOCK,             /* HSE = 24MHz */
         .pll_divm1 = 12,                                /* DIVM1 = 24MHz / 12 = 2MHz */
+        .pll_divm2 = 12,                                /* DIVM2 = 24MHz / 12 = 2MHz */
 
         .pll1.enable = HAL_ENABLE,
         .pll1.vco = RCC_PLL_VCOH,
         .pll1.rge = RCC_PLL_RGE_1_2MHZ,
         .pll1.divn = 300,                               /* DIVN = 2MHz * 300 = 600MHz */
         .pll1.divp = 1,                                 /* DIVP = 600MHz / 1 = 600MHz */
+
+        .pll2.enable = HAL_ENABLE,
+        .pll2.vco = RCC_PLL_VCOH,
+        .pll2.rge = RCC_PLL_RGE_1_2MHZ,
+        .pll2.divn = 266,                               /* DIVN = 2MHz * 266 = 532MHz */
+        .pll2.divt = 4,                                 /* DIVT = 532MHz / 4 = 133MHz */
 
         .cpu_div = RCC_CPU_DIV1,
         .ahb_div = RCC_AHB_DIV2,
@@ -58,6 +65,8 @@ void rcc_init(void)
         .apb4_div = RCC_APB_DIV2,
         .apb5_div = RCC_APB_DIV2,
         .system_clksource = RCC_PLL1P_SYSTEM_CLOCK,
+
+        .xspi1_clksource = RCC_XSPI1_PLL2T_CLOCK,
     };
 
     hal_rcc_init(&rcc_init);

@@ -125,6 +125,8 @@ static void hal_rcc_setup_apb5_div(uint32_t div);
 
 static void hal_rcc_setup_system_clock_source(uint32_t clksource);
 
+static void hal_rcc_setup_xspi1_clock_source(uint32_t clksource);
+
 /* Private user code ------------------------------------------------------- */
 
 /**
@@ -164,6 +166,9 @@ void hal_rcc_init(rcc_init_t * rcc_init)
     hal_rcc_setup_apb4_div(rcc_init->apb4_div);
     hal_rcc_setup_apb5_div(rcc_init->apb5_div);
     hal_rcc_setup_system_clock_source(rcc_init->system_clksource);
+
+    /* Настроить источник тактирования периферии */
+    hal_rcc_setup_xspi1_clock_source(rcc_init->xspi1_clksource);
 }
 /* ------------------------------------------------------------------------- */
 
@@ -978,6 +983,19 @@ static void hal_rcc_setup_system_clock_source(uint32_t clksource)
 
     while (READ_BIT(RCC->CFGR, RCC_CFGR_SWS_Msk) !=
             clksource << RCC_CFGR_SWS_Pos) {}
+}
+/* ------------------------------------------------------------------------- */
+
+/**
+ * @brief Настроить источник тактирования XSPI1
+ *
+ * @param clksource Источник тактирования @ref rcc_xspi1_clock_source_t
+ */
+static void hal_rcc_setup_xspi1_clock_source(uint32_t clksource)
+{
+    MODIFY_REG(RCC->CCIPR1,
+               RCC_CCIPR1_XSPI1SEL_Msk,
+               clksource << RCC_CCIPR1_XSPI1SEL_Pos);
 }
 /* ------------------------------------------------------------------------- */
 

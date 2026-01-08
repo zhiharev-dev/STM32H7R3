@@ -17,7 +17,7 @@
 ENTRY(Reset_Handler)
 
 
-_estack = ORIGIN(DTCM) + LENGTH(DTCM);
+_estack = ORIGIN(AXISRAM) + LENGTH(AXISRAM);
 _min_heap_size = 0;
 _min_stack_size = 256;
 

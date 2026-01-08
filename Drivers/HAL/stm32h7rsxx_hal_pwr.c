@@ -17,21 +17,11 @@
 
 /* Includes ---------------------------------------------------------------- */
 
-#include "main.h"
-#include "systick.h"
-#include "pwr.h"
-#include "flash.h"
-#include "rcc.h"
-#include "gpio.h"
-#include "led.h"
+#include "stm32h7rsxx_hal_pwr.h"
 
 /* Private macros ---------------------------------------------------------- */
 
 /* Private constants ------------------------------------------------------- */
-
-#define VTOR_ADDRESS        0x08000000
-
-#define HSI_CLOCK           64000000
 
 /* Private types ----------------------------------------------------------- */
 
@@ -39,78 +29,62 @@
 
 /* Private function prototypes --------------------------------------------- */
 
-static void setup_hardware(void);
+static void hal_pwr_disable_bkp_protect(void);
 
-static void setup_vector_table(void);
+static void hal_pwr_setup_supply(uint32_t supply);
 
-static void setup_fpu(void);
-
-static void app_main(void);
+static void hal_pwr_setup_vos(uint32_t vos);
 
 /* Private user code ------------------------------------------------------- */
 
-int main(void)
+/**
+ * @brief Инициализировать PWR
+ *
+ * @param pwr_init Указатель на структуру данных инициализации PWR
+ */
+void hal_pwr_init(pwr_init_t * pwr_init)
 {
-    setup_hardware();
-    app_main();
+    assert(pwr_init != NULL);
+
+    hal_pwr_disable_bkp_protect();
+    hal_pwr_setup_supply(pwr_init->supply);
+    hal_pwr_setup_vos(pwr_init->vos);
 }
 /* ------------------------------------------------------------------------- */
 
-void error(void)
+/**
+ * @brief Выключить защиту резервного домена
+ */
+static void hal_pwr_disable_bkp_protect(void)
 {
-    __disable_irq();
-
-    while (1) {
-        /* Задержка */
-        for (uint32_t i = 0; i < 60000; i++) {
-            for (uint32_t j = 0; j < 500; j++) {
-                __NOP();
-            }
-        }
-
-        /* Переключить состояние системного светодиода (мигание) - Ошибка */
-        led_toggle(&led_system);
-    }
+    SET_BIT(PWR->CR1, PWR_CR1_DBP_Msk);
 }
 /* ------------------------------------------------------------------------- */
 
-static void app_main(void)
+/**
+ * @brief Настроить источник питания PWR
+ *
+ * @param supply Конфигурация источника питания PWR @ref pwr_supply_t
+ */
+static void hal_pwr_setup_supply(uint32_t supply)
 {
-    /* Включить системный светодиод - Рабочее состояние */
-    led_on(&led_system);
+    WRITE_REG(PWR->CSR2, supply);
 
-    while (1) {}
+    while (!READ_BIT(PWR->SR1, PWR_SR1_ACTVOSRDY_Msk)) {}
 }
 /* ------------------------------------------------------------------------- */
 
-static void setup_hardware(void)
+/**
+ * @brief Настроить масштабирование напряжения PWR
+ *
+ * @param vos Масштабирование напряжения PWR @ref pwr_vos_t
+ */
+static void hal_pwr_setup_vos(uint32_t vos)
 {
-    setup_vector_table();
-    setup_fpu();
+    MODIFY_REG(PWR->CSR4,
+               PWR_CSR4_VOS_Msk,
+               vos << PWR_CSR4_VOS_Pos);
 
-    systick_init(HSI_CLOCK);
-    pwr_init();
-    flash_init();
-    rcc_init();
-    systick_init(RCC_CPU_CLOCK);
-    gpio_init();
-}
-/* ------------------------------------------------------------------------- */
-
-static void setup_vector_table(void)
-{
-    __disable_irq();
-    __set_PRIMASK(1);
-
-    WRITE_REG(SCB->VTOR, VTOR_ADDRESS);
-
-    __set_PRIMASK(0);
-    __enable_irq();
-}
-/* ------------------------------------------------------------------------- */
-
-static void setup_fpu(void)
-{
-    SET_BIT(SCB->CPACR, (0x03 << 20) | (0x03 << 22));
+    while (!READ_BIT(PWR->CSR4, PWR_CSR4_VOSRDY_Msk)) {}
 }
 /* ------------------------------------------------------------------------- */

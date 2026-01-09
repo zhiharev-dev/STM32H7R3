@@ -55,8 +55,8 @@ void rcc_init(void)
         .pll2.enable = HAL_ENABLE,
         .pll2.vco = RCC_PLL_VCOH,
         .pll2.rge = RCC_PLL_RGE_1_2MHZ,
-        .pll2.divn = 266,                               /* DIVN = 2MHz * 266 = 532MHz */
-        .pll2.divt = 4,                                 /* DIVT = 532MHz / 4 = 133MHz */
+        .pll2.divn = 200,                               /* DIVN = 2MHz * 200 = 400MHz */
+        .pll2.divt = 4,                                 /* DIVT = 400MHz / 4 = 100MHz */
 
         .cpu_div = RCC_CPU_DIV1,
         .ahb_div = RCC_AHB_DIV2,

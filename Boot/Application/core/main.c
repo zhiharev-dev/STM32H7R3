@@ -24,6 +24,7 @@
 #include "rcc.h"
 #include "gpio.h"
 #include "xspim.h"
+#include "xspi.h"
 #include "led.h"
 
 /* Private macros ---------------------------------------------------------- */
@@ -96,6 +97,7 @@ static void setup_hardware(void)
     systick_init(RCC_CPU_CLOCK);
     gpio_init();
     xspim_init();
+    xspi_init();
 }
 /* ------------------------------------------------------------------------- */
 

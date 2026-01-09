@@ -28,6 +28,12 @@ extern "C" {
 
 /* Exported macros --------------------------------------------------------- */
 
+/**
+ * @brief Включить защиту тактирования XSPI
+ */
+#define HAL_RCC_XSPI_ENABLE_PROTECTION_CLOCK() \
+        SET_BIT(RCC->CKPROTR, RCC_CKPROTR_XSPICKP_Msk)
+
 /* Exported constants ------------------------------------------------------ */
 
 /* Exported types ---------------------------------------------------------- */

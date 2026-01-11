@@ -25,7 +25,6 @@ extern "C" {
 /* Includes ---------------------------------------------------------------- */
 
 #include "main.h"
-#include "stm32h7rsxx_hal_systick.h"
 
 /* Exported macros --------------------------------------------------------- */
 
@@ -38,6 +37,10 @@ extern "C" {
 /* Exported function prototypes -------------------------------------------- */
 
 void systick_init(const uint32_t frequency);
+
+void systick_it_handler(void);
+
+uint32_t systick_get_ticks(void);
 
 /* Exported callback function prototypes ----------------------------------- */
 

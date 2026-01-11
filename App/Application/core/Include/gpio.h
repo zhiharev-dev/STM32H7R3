@@ -15,8 +15,8 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef LED_H_
-#define LED_H_
+#ifndef GPIO_H_
+#define GPIO_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -25,7 +25,6 @@ extern "C" {
 /* Includes ---------------------------------------------------------------- */
 
 #include "main.h"
-#include "gpio.h"
 
 /* Exported macros --------------------------------------------------------- */
 
@@ -33,33 +32,11 @@ extern "C" {
 
 /* Exported types ---------------------------------------------------------- */
 
-/**
- * @brief Определение перечисления состояний светодиода
- */
-typedef enum led_state {
-    LED_OFF = GPIO_RESET,
-    LED_ON = GPIO_SET,
-} led_state_t;
-
-
-/**
- * @brief Определение структуры данных светодиода
- */
-typedef struct led {
-    gpio_handle_t * gpio_handle;                /*!< Указатель на структуру данных обработчика GPIO */
-} led_t;
-
 /* Exported variables ------------------------------------------------------ */
-
-extern led_t led_system;
 
 /* Exported function prototypes -------------------------------------------- */
 
-void led_on(led_t * self);
-
-void led_off(led_t * self);
-
-void led_toggle(led_t * self);
+void gpio_init(void);
 
 /* Exported callback function prototypes ----------------------------------- */
 
@@ -67,4 +44,4 @@ void led_toggle(led_t * self);
 }
 #endif /* __cplusplus */
 
-#endif /* LED_H_ */
+#endif /* GPIO_H_ */

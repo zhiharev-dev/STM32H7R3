@@ -27,6 +27,8 @@
 
 /* Private variables ------------------------------------------------------- */
 
+volatile uint32_t ticks;
+
 /* Private function prototypes --------------------------------------------- */
 
 /* Private user code ------------------------------------------------------- */
@@ -38,20 +40,45 @@
  */
 void systick_init(const uint32_t frequency)
 {
-    systick_init_t systick_init = {
-        .frequency = frequency,
-        .clksource = SYSTICK_CPU_CLOCK,
-    };
+    uint32_t reload = (frequency / 1000) - 1;
 
-    hal_systick_init(&systick_init);
-    hal_systick_start_it();
+    /* Сбросить регистр управления SysTick */
+    CLEAR_REG(SysTick->CTRL);
 
+    /* Записать значение перезагрузки счетчика SysTick */
+    WRITE_REG(SysTick->LOAD, reload);
+
+    /* Сбросить текущее значение счетчика SysTick */
+    CLEAR_REG(SysTick->VAL);
+
+    /* Настроить и запустить SysTick */
+    WRITE_REG(SysTick->CTRL,
+              SysTick_CTRL_CLKSOURCE_Msk
+            | SysTick_CTRL_TICKINT_Msk
+            | SysTick_CTRL_ENABLE_Msk);
+
+    /* Настроить NVIC */
     NVIC_SetPriority(SysTick_IRQn, 15);
+    NVIC_EnableIRQ(SysTick_IRQn);
 }
 /* ------------------------------------------------------------------------- */
 
-void hal_systick_period_elapsed_callback(void)
+/**
+ * @brief Обработать прерывания SysTick
+ */
+inline void systick_it_handler(void)
 {
+    ticks++;
+}
+/* ------------------------------------------------------------------------- */
 
+/**
+ * @brief Получить значение системного таймера SysTick
+ *
+ * @return Значение системного таймера (мс)
+ */
+inline uint32_t systick_get_ticks(void)
+{
+    return ticks;
 }
 /* ------------------------------------------------------------------------- */

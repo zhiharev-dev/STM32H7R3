@@ -24,7 +24,11 @@ extern "C" {
 
 /* Includes ---------------------------------------------------------------- */
 
-#include "stm32h7rsxx_hal_def.h"
+#include <stddef.h>
+#include <stdint.h>
+#include <string.h>
+#include <assert.h>
+#include "stm32h7rsxx.h"
 #include "FreeRTOS.h"
 #include "task.h"
 

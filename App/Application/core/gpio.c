@@ -17,7 +17,7 @@
 
 /* Includes ---------------------------------------------------------------- */
 
-#include "xspim.h"
+#include "gpio.h"
 
 /* Private macros ---------------------------------------------------------- */
 
@@ -29,19 +29,45 @@
 
 /* Private function prototypes --------------------------------------------- */
 
+static void gpio_led_init(void);
+
 /* Private user code ------------------------------------------------------- */
 
 /**
- * @brief Инициализировать XSPIM
+ * @brief Инициализировать GPIO
  */
-void xspim_init(void)
+void gpio_init(void)
 {
-    xspim_init_t xspim_init = {
-        .mode = XSPIM_DIRECT_MODE,
-    };
+    /* Включить тактирование GPIO */
+    SET_BIT(RCC->AHB4ENR, RCC_AHB4ENR_GPIOAEN_Msk);
+    SET_BIT(RCC->AHB4ENR, RCC_AHB4ENR_GPIOBEN_Msk);
 
-    HAL_XSPIM_ENABLE_CLOCK();
+    gpio_led_init();
+}
+/* ------------------------------------------------------------------------- */
 
-    hal_xspim_init(&xspim_init);
+/**
+ * @brief Инициализировать GPIO LED
+ */
+static void gpio_led_init(void)
+{
+    /* Установить начальное значение = Reset */
+    CLEAR_BIT(GPIOB->ODR, GPIO_ODR_OD2_Msk);
+
+    /* Настроить режим работы ввода-вывода = Output */
+    MODIFY_REG(GPIOB->MODER,
+               GPIO_MODER_MODE2_Msk,
+               0x01 << GPIO_MODER_MODE2_Pos);
+
+    /* Настроить тип ввода-вывода = Push-Pull */
+    CLEAR_BIT(GPIOB->OTYPER, GPIO_OTYPER_OT2_Msk);
+
+    /* Настроить скорость работы ввода-вывода = Low Speed */
+    CLEAR_BIT(GPIOB->OSPEEDR, GPIO_OSPEEDR_OSPEED2_Msk);
+
+    /* Настроить подтягивание/понижение ввода-вывода = Pull-Up */
+    MODIFY_REG(GPIOB->PUPDR,
+               GPIO_PUPDR_PUPD2_Msk,
+               0x01 << GPIO_PUPDR_PUPD2_Pos);
 }
 /* ------------------------------------------------------------------------- */

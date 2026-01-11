@@ -25,7 +25,6 @@ extern "C" {
 /* Includes ---------------------------------------------------------------- */
 
 #include "main.h"
-#include "stm32h7rsxx_hal_gpio.h"
 
 /* Exported macros --------------------------------------------------------- */
 
@@ -34,8 +33,6 @@ extern "C" {
 /* Exported types ---------------------------------------------------------- */
 
 /* Exported variables ------------------------------------------------------ */
-
-extern gpio_handle_t gpio_led_system;
 
 /* Exported function prototypes -------------------------------------------- */
 

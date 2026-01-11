@@ -27,14 +27,7 @@
 
 /* Private variables ------------------------------------------------------- */
 
-gpio_handle_t gpio_led_system = {
-    .instance = GPIOB,
-    .pin = GPIO_PIN2,
-};
-
 /* Private function prototypes --------------------------------------------- */
-
-static void gpio_led_init(void);
 
 static void gpio_xspi1_init(void);
 
@@ -45,31 +38,12 @@ static void gpio_xspi1_init(void);
  */
 void gpio_init(void)
 {
-    HAL_GPIOA_ENABLE_CLOCK();
-    HAL_GPIOB_ENABLE_CLOCK();
-    HAL_GPIOO_ENABLE_CLOCK();
-    HAL_GPIOP_ENABLE_CLOCK();
+    /* Включить тактирование GPIO */
+    SET_BIT(RCC->AHB4ENR, RCC_AHB4ENR_GPIOAEN_Msk);
+    SET_BIT(RCC->AHB4ENR, RCC_AHB4ENR_GPIOOEN_Msk);
+    SET_BIT(RCC->AHB4ENR, RCC_AHB4ENR_GPIOPEN_Msk);
 
-    gpio_led_init();
     gpio_xspi1_init();
-}
-/* ------------------------------------------------------------------------- */
-
-/**
- * @brief Инициализировать GPIO LED
- */
-static void gpio_led_init(void)
-{
-    gpio_init_t gpio_init = {
-         .mode = GPIO_OUTPUT,
-         .otype = GPIO_PUSH_PULL,
-         .ospeed = GPIO_LOW_SPEED,
-         .pupd = GPIO_PULL_UP,
-    };
-
-    hal_gpio_set_state(&gpio_led_system, GPIO_RESET);
-
-    hal_gpio_init(&gpio_led_system, &gpio_init);
 }
 /* ------------------------------------------------------------------------- */
 
@@ -87,50 +61,83 @@ static void gpio_xspi1_init(void)
      * GPIOP3 XSPIM_P1_IO3
      */
 
-    gpio_init_t gpio_init = {
-         .mode = GPIO_AF,
-         .otype = GPIO_PUSH_PULL,
-         .ospeed = GPIO_VERY_HIGH_SPEED,
-         .pupd = GPIO_NO_PULL,
-         .af = 9,
-    };
+    /* GPIOO --------------------------------------------------------------- */
 
-    gpio_handle_t gpio_ncs1 = {
-        .instance = GPIOO,
-        .pin = GPIO_PIN0,
-    };
+    /* Настроить режим работы ввода-вывода = AF */
+    MODIFY_REG(GPIOO->MODER,
+               GPIO_MODER_MODE0_Msk
+             | GPIO_MODER_MODE4_Msk,
+               0x02 << GPIO_MODER_MODE0_Pos
+             | 0x02 << GPIO_MODER_MODE4_Pos);
 
-    gpio_handle_t gpio_clk = {
-        .instance = GPIOO,
-        .pin = GPIO_PIN4,
-    };
+    /* Настроить тип ввода-вывода = Push-Pull */
+    CLEAR_BIT(GPIOO->OTYPER,
+              GPIO_OTYPER_OT0_Msk
+            | GPIO_OTYPER_OT4_Msk);
 
-    gpio_handle_t gpio_io0 = {
-        .instance = GPIOP,
-        .pin = GPIO_PIN0,
-    };
+    /* Настроить скорость работы ввода-вывода = Very High Speed */
+    SET_BIT(GPIOO->OSPEEDR,
+            GPIO_OSPEEDR_OSPEED0_Msk
+          | GPIO_OSPEEDR_OSPEED4_Msk);
 
-    gpio_handle_t gpio_io1 = {
-        .instance = GPIOP,
-        .pin = GPIO_PIN1,
-    };
+    /* Настроить подтягивание/понижение ввода-вывода = No-Pull */
+    CLEAR_BIT(GPIOO->PUPDR,
+              GPIO_PUPDR_PUPD0_Msk
+            | GPIO_PUPDR_PUPD4_Msk);
 
-    gpio_handle_t gpio_io2 = {
-        .instance = GPIOP,
-        .pin = GPIO_PIN2,
-    };
-
-    gpio_handle_t gpio_io3 = {
-        .instance = GPIOP,
-        .pin = GPIO_PIN3,
-    };
+    /* Настроить номер альтернативной функции ввода-вывода = 9 */
+    MODIFY_REG(GPIOO->AFR[0],
+               GPIO_AFRL_AFSEL0_Msk
+             | GPIO_AFRL_AFSEL4_Msk,
+               0x09 << GPIO_AFRL_AFSEL0_Pos
+             | 0x09 << GPIO_AFRL_AFSEL4_Pos);
+    /* --------------------------------------------------------------------- */
 
 
-    hal_gpio_init(&gpio_ncs1, &gpio_init);
-    hal_gpio_init(&gpio_clk, &gpio_init);
-    hal_gpio_init(&gpio_io0, &gpio_init);
-    hal_gpio_init(&gpio_io1, &gpio_init);
-    hal_gpio_init(&gpio_io2, &gpio_init);
-    hal_gpio_init(&gpio_io3, &gpio_init);
+    /* GPIOP --------------------------------------------------------------- */
+
+    /* Настроить режим работы ввода-вывода = AF */
+    MODIFY_REG(GPIOP->MODER,
+               GPIO_MODER_MODE0_Msk
+             | GPIO_MODER_MODE1_Msk
+             | GPIO_MODER_MODE2_Msk
+             | GPIO_MODER_MODE3_Msk,
+               0x02 << GPIO_MODER_MODE0_Pos
+             | 0x02 << GPIO_MODER_MODE1_Pos
+             | 0x02 << GPIO_MODER_MODE2_Pos
+             | 0x02 << GPIO_MODER_MODE3_Pos);
+
+    /* Настроить тип ввода-вывода = Push-Pull */
+    CLEAR_BIT(GPIOP->OTYPER,
+              GPIO_OTYPER_OT0_Msk
+            | GPIO_OTYPER_OT1_Msk
+            | GPIO_OTYPER_OT2_Msk
+            | GPIO_OTYPER_OT3_Msk);
+
+    /* Настроить скорость работы ввода-вывода = Very High Speed */
+    SET_BIT(GPIOP->OSPEEDR,
+            GPIO_OSPEEDR_OSPEED0_Msk
+          | GPIO_OSPEEDR_OSPEED1_Msk
+          | GPIO_OSPEEDR_OSPEED2_Msk
+          | GPIO_OSPEEDR_OSPEED3_Msk);
+
+    /* Настроить подтягивание/понижение ввода-вывода = No-Pull */
+    CLEAR_BIT(GPIOP->PUPDR,
+              GPIO_PUPDR_PUPD0_Msk
+            | GPIO_PUPDR_PUPD1_Msk
+            | GPIO_PUPDR_PUPD2_Msk
+            | GPIO_PUPDR_PUPD3_Msk);
+
+    /* Настроить номер альтернативной функции ввода-вывода = 9 */
+    MODIFY_REG(GPIOP->AFR[0],
+               GPIO_AFRL_AFSEL0_Msk
+             | GPIO_AFRL_AFSEL1_Msk
+             | GPIO_AFRL_AFSEL2_Msk
+             | GPIO_AFRL_AFSEL3_Msk,
+               0x09 << GPIO_AFRL_AFSEL0_Pos
+             | 0x09 << GPIO_AFRL_AFSEL1_Pos
+             | 0x09 << GPIO_AFRL_AFSEL2_Pos
+             | 0x09 << GPIO_AFRL_AFSEL3_Pos);
+    /* --------------------------------------------------------------------- */
 }
 /* ------------------------------------------------------------------------- */

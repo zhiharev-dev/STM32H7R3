@@ -19,12 +19,14 @@
 
 #include "main.h"
 #include "systick.h"
+#include "gpio.h"
+#include "led.h"
 
 /* Private macros ---------------------------------------------------------- */
 
 /* Private constants ------------------------------------------------------- */
 
-#define VTOR_ADDRESS        0x70000000
+#define VTOR_ADDRESS        0x90000000
 
 #define SYSTEM_CLOCK        600000000
 
@@ -75,6 +77,12 @@ static void app_main(void * argv)
 {
     static const TickType_t frequency = pdMS_TO_TICKS(10);
 
+    /* INIT USER CODE BEGIN ------------------------------------------------ */
+
+    led_on(&led_system);
+
+    /* INIT USER CODE END -------------------------------------------------- */
+
     TickType_t last_wake_time = xTaskGetTickCount();
 
     while (1) {
@@ -101,6 +109,7 @@ static void setup_hardware(void)
     setup_fpu();
 
     systick_init(SYSTEM_CLOCK);
+    gpio_init();
 }
 /* ------------------------------------------------------------------------- */
 

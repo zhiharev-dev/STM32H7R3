@@ -36,12 +36,19 @@
  */
 void pwr_init(void)
 {
-    pwr_init_t pwr_init = {
-        .supply = PWR_DIRECT_SMPS,
-        .vos = PWR_VOS_HIGH,
-        .xspim1_enable = HAL_ENABLE,
-    };
+    /* Отключить защиту от записи резервного домена  */
+    SET_BIT(PWR->CR1, PWR_CR1_DBP_Msk);
 
-    hal_pwr_init(&pwr_init);
+    /* Включить резервный регулятор */
+    SET_BIT(PWR->CSR1, PWR_CSR1_BREN_Msk);
+    while (!READ_BIT(PWR->CSR1, PWR_CSR1_BRRDY_Msk)) {}
+
+    /* Настроить источник питания = Direct SMPS */
+    WRITE_REG(PWR->CSR2, 0x04);
+    while (!READ_BIT(PWR->SR1, PWR_SR1_ACTVOSRDY_Msk)) {}
+
+    /* Настроить масштабирование напряжения = High */
+    SET_BIT(PWR->CSR4, PWR_CSR4_VOS_Msk);
+    while (!READ_BIT(PWR->CSR4, PWR_CSR4_VOSRDY_Msk)) {}
 }
 /* ------------------------------------------------------------------------- */

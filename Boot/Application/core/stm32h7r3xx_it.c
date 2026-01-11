@@ -64,6 +64,6 @@ void UsageFault_Handler(void)
 
 void SysTick_Handler(void)
 {
-    hal_systick_it_handler();
+    systick_it_handler();
 }
 /* ------------------------------------------------------------------------- */

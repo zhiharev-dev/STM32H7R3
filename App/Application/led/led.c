@@ -28,7 +28,8 @@
 /* Private variables ------------------------------------------------------- */
 
 led_t led_system = {
-    .gpio_handle = &gpio_led_system,
+    .gpio = GPIOB,
+    .pin = GPIO_ODR_OD2,
 };
 
 /* Private function prototypes --------------------------------------------- */
@@ -43,8 +44,10 @@ led_t led_system = {
 void led_on(led_t * self)
 {
     assert(self != NULL);
+    assert(self->gpio != NULL);
+    assert(self->pin != 0);
 
-    hal_gpio_set_state(self->gpio_handle, (gpio_state_t) LED_ON);
+    SET_BIT(self->gpio->BSRR, self->pin);
 }
 /* ------------------------------------------------------------------------- */
 
@@ -56,8 +59,10 @@ void led_on(led_t * self)
 void led_off(led_t * self)
 {
     assert(self != NULL);
+    assert(self->gpio != NULL);
+    assert(self->pin != 0);
 
-    hal_gpio_set_state(self->gpio_handle, (gpio_state_t) LED_OFF);
+    SET_BIT(self->gpio->BSRR, self->pin << 16);
 }
 /* ------------------------------------------------------------------------- */
 
@@ -69,7 +74,9 @@ void led_off(led_t * self)
 void led_toggle(led_t * self)
 {
     assert(self != NULL);
+    assert(self->gpio != NULL);
+    assert(self->pin != 0);
 
-    hal_gpio_toggle(self->gpio_handle);
+    XOR_BIT(self->gpio->ODR, self->pin);
 }
 /* ------------------------------------------------------------------------- */

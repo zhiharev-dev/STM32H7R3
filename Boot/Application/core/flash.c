@@ -36,11 +36,9 @@
  */
 void flash_init(void)
 {
-    flash_init_t flash_init = {
-        .latency = FLASH_LATENCY_7WS,
-        .wrhighfreq = FLASH_WRHIGHFREQ3,
-    };
-
-    hal_flash_init(&flash_init);
+    /* Настроить задержку чтения-записи данных */
+    WRITE_REG(FLASH->ACR,
+              0x07 << FLASH_ACR_LATENCY_Pos
+            | 0x03 << FLASH_ACR_WRHIGHFREQ_Pos);
 }
 /* ------------------------------------------------------------------------- */

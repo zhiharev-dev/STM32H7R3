@@ -18,7 +18,6 @@
 /* Includes ---------------------------------------------------------------- */
 
 #include "xspi.h"
-#include "rcc.h"
 
 /* Private macros ---------------------------------------------------------- */
 
@@ -27,10 +26,6 @@
 /* Private types ----------------------------------------------------------- */
 
 /* Private variables ------------------------------------------------------- */
-
-xspi_handle_t xspi1 = {
-    .instance = XSPI1,
-};
 
 /* Private function prototypes --------------------------------------------- */
 
@@ -41,18 +36,47 @@ xspi_handle_t xspi1 = {
  */
 void xspi_init(void)
 {
-    xspi_init_t xspi_init = {
-        .mode = XSPI_MODE0,
-        .prescaler = 1,
-        .memory_type = XSPI_MACRONIX,
-        .memory_size = XSPI_SIZE_8MB,
-    };
+    /* Включить интерфейс XSPIM1 */
+    SET_BIT(PWR->CSR2, PWR_CSR2_EN_XSPIM1_Msk);
 
-    HAL_XSPI1_ENABLE_CLOCK();
+    /* Включить тактирование XSPIM */
+    SET_BIT(RCC->AHB5ENR, RCC_AHB5ENR_XSPIMEN_Msk);
 
-    HAL_RCC_XSPI_ENABLE_PROTECTION_CLOCK();
+    /* Включить тактирование XSPI1 */
+    SET_BIT(RCC->AHB5ENR, RCC_AHB5ENR_XSPI1EN_Msk);
 
-    hal_xspi_init(&xspi1, &xspi_init);
-    hal_xspi_enable(&xspi1);
+    /* Настроить источник тактирования XSPI1 = PLL2T */
+    MODIFY_REG(RCC->CCIPR1,
+               RCC_CCIPR1_XSPI1SEL_Msk,
+               0x02 << RCC_CCIPR1_XSPI1SEL_Pos);
+
+    /* Включить защиту тактирования XSPI */
+    SET_BIT(RCC->CKPROTR, RCC_CKPROTR_XSPICKP_Msk);
+
+
+    /* XSPIM --------------------------------------------------------------- */
+
+    CLEAR_REG(XSPIM->CR);
+    /* --------------------------------------------------------------------- */
+
+
+    /* XSPI1 --------------------------------------------------------------- */
+
+    /* Настроить:
+     *   - Режим работы = Mode 0
+     *   - Тип памяти = Macronix
+     *   - Размер памяти = 8MB
+     */
+    WRITE_REG(XSPI1->DCR1,
+              0x00 << XSPI_DCR1_CKMODE_Pos
+            | 0x01 << XSPI_DCR1_MTYP_Pos
+            | 0x13 << XSPI_DCR1_DEVSIZE_Pos);
+
+    /* Настроить делитель часов = 1 (100MHz / 1 = 100MHz) */
+    CLEAR_BIT(XSPI1->DCR2, XSPI_DCR2_PRESCALER_Msk);
+
+    /* Включить XSPI */
+    SET_BIT(XSPI1->CR, XSPI_CR_EN_Msk);
+    /* --------------------------------------------------------------------- */
 }
 /* ------------------------------------------------------------------------- */

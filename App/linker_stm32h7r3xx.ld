@@ -24,7 +24,7 @@ _min_stack_size = 256;
 
 MEMORY 
 {
-    FLASH       (rx)  : ORIGIN = 0x70000000,    LENGTH = 8M
+    FLASH       (rx)  : ORIGIN = 0x90000000,    LENGTH = 8M
     ITCM        (xrw) : ORIGIN = 0x00000000,    LENGTH = 64K
     DTCM        (xrw) : ORIGIN = 0x20000000,    LENGTH = 64K
     AXISRAM     (xrw) : ORIGIN = 0x24000000,    LENGTH = 456K

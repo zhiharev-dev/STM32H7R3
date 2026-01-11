@@ -15,8 +15,8 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef STM32H7RSXX_HAL_SYSTICK_H_
-#define STM32H7RSXX_HAL_SYSTICK_H_
+#ifndef LED_H_
+#define LED_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -24,7 +24,8 @@ extern "C" {
 
 /* Includes ---------------------------------------------------------------- */
 
-#include "stm32h7rsxx_hal_def.h"
+#include "main.h"
+#include "gpio.h"
 
 /* Exported macros --------------------------------------------------------- */
 
@@ -33,49 +34,30 @@ extern "C" {
 /* Exported types ---------------------------------------------------------- */
 
 /**
- * @brief Определение структуры данных SysTick
+ * @brief Определение структуры данных светодиода
  */
-typedef SysTick_Type systick_t;
+typedef struct led {
+    GPIO_TypeDef * gpio;                        /*!< Указатель на структуру данных GPIO */
 
-
-/**
- * @brief Определение перечисления источников тактирования SysTick
- */
-typedef enum systick_clock_source {
-    SYSTICK_CPU_CLOCK_DIV8,
-    SYSTICK_CPU_CLOCK,
-} systick_clock_source_t;
-
-
-/**
- * @brief Определение структуры данных инициализации SysTick
- */
-typedef struct systick_init {
-    uint32_t frequency;                         /*!< Частота тактирования (Гц) */
-
-    uint32_t clksource;                         /*!< Источник тактирования @ref systick_clock_source_t */
-} systick_init_t;
+    uint32_t pin;                               /*!< Номер ввода-вывода */
+} led_t;
 
 /* Exported variables ------------------------------------------------------ */
 
+extern led_t led_system;
+
 /* Exported function prototypes -------------------------------------------- */
 
-void hal_systick_init(systick_init_t * systick_init);
+void led_on(led_t * self);
 
-void hal_systick_it_handler(void);
+void led_off(led_t * self);
 
-void hal_systick_start_it(void);
-
-void hal_systick_stop_it(void);
-
-uint32_t hal_systick_get_ticks(void);
+void led_toggle(led_t * self);
 
 /* Exported callback function prototypes ----------------------------------- */
-
-__WEAK void hal_systick_period_elapsed_callback(void);
 
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
 
-#endif /* STM32H7RSXX_HAL_SYSTICK_H_ */
+#endif /* LED_H_ */

@@ -23,9 +23,8 @@
 #include "flash.h"
 #include "rcc.h"
 #include "gpio.h"
-#include "xspim.h"
 #include "xspi.h"
-#include "led.h"
+#include "w25q.h"
 
 /* Private macros ---------------------------------------------------------- */
 
@@ -34,6 +33,8 @@
 #define VTOR_ADDRESS        0x08000000
 
 #define HSI_CLOCK           64000000
+
+#define APP_ADDRESS         0x90000000
 
 /* Private types ----------------------------------------------------------- */
 
@@ -49,6 +50,8 @@ static void setup_fpu(void);
 
 static void app_main(void);
 
+static void jump_app(void);
+
 /* Private user code ------------------------------------------------------- */
 
 int main(void)
@@ -62,26 +65,19 @@ void error(void)
 {
     __disable_irq();
 
-    while (1) {
-        /* Задержка */
-        for (uint32_t i = 0; i < 60000; i++) {
-            for (uint32_t j = 0; j < 500; j++) {
-                __NOP();
-            }
-        }
-
-        /* Переключить состояние системного светодиода (мигание) - Ошибка */
-        led_toggle(&led_system);
-    }
+    while (1) {}
 }
 /* ------------------------------------------------------------------------- */
 
 static void app_main(void)
 {
-    /* Включить системный светодиод - Рабочее состояние */
-    led_on(&led_system);
-
-    while (1) {}
+    if (w25q_init() != W25Q_OK) {
+        error();
+    } else if (w25q_setup_memory_mapped_mode() != W25Q_OK) {
+        error();
+    } else {
+        jump_app();
+    }
 }
 /* ------------------------------------------------------------------------- */
 
@@ -96,7 +92,6 @@ static void setup_hardware(void)
     rcc_init();
     systick_init(RCC_CPU_CLOCK);
     gpio_init();
-    xspim_init();
     xspi_init();
 }
 /* ------------------------------------------------------------------------- */
@@ -118,3 +113,20 @@ static void setup_fpu(void)
     SET_BIT(SCB->CPACR, (0x03 << 20) | (0x03 << 22));
 }
 /* ------------------------------------------------------------------------- */
+
+static void jump_app(void)
+{
+    __disable_irq();
+
+    __ISB();
+    __DSB();
+
+    typedef void (*p_function)(void);
+    p_function app = (p_function) *(uint32_t *) (APP_ADDRESS + 4);
+
+    __set_MSP(*(uint32_t *) APP_ADDRESS);
+
+    app();
+}
+/* ------------------------------------------------------------------------- */
+

@@ -125,13 +125,18 @@ void rcc_init(void)
     /*
      * Настроить:
      *   - PLL2_DIVN = 200 (2MHz * 200 = 400MHz)
+     *   - PLL2_DIVS = 8 (400MHz / 8 = 50MHz)
      *   - PLL2_DIVT = 4 (400MHz / 4 = 100MHz)
      */
     WRITE_REG(RCC->PLL2DIVR1, (0xC8 - 1) << RCC_PLL2DIVR1_DIVN_Pos);
 
-    WRITE_REG(RCC->PLL2DIVR2, (0x04 - 1) << RCC_PLL2DIVR2_DIVT_Pos);
+    WRITE_REG(RCC->PLL2DIVR2,
+             (0x08 - 1) << RCC_PLL2DIVR2_DIVS_Pos
+           | (0x04 - 1) << RCC_PLL2DIVR2_DIVT_Pos);
 
-    SET_BIT(RCC->PLLCFGR, RCC_PLLCFGR_PLL2TEN_Msk);
+    SET_BIT(RCC->PLLCFGR,
+            RCC_PLLCFGR_PLL2SEN_Msk
+          | RCC_PLLCFGR_PLL2TEN_Msk);
 
     /* Включить PLLs */
     SET_BIT(RCC->CR,
